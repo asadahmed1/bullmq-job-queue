@@ -1,0 +1,48 @@
+{
+  "name": "@asadahmed/bullmq-job-queue",
+  "version": "1.0.0",
+  "description": "Reusable BullMQ-based job queue microservice with support for email, PDF, and webhooks.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/server.ts",
+    "start:email": "ts-node src/workers/emailWorker.ts",
+    "start:pdf": "ts-node src/workers/pdfWorker.ts",
+    "start:webhook": "ts-node src/workers/webhookWorker.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asadahmed1/bullmq-job-queue.git"
+  },
+  "homepage": "https://github.com/asadahmed1/bullmq-job-queue",
+  "author": "Asad Ahmed",
+  "license": "MIT",
+  "keywords": ["bullmq", "queue", "redis", "worker", "pdf", "email", "webhook"],
+  "dependencies": {
+    "@bull-board/api": "^6.10.1",
+    "@bull-board/express": "^6.10.1",
+    "@sendgrid/mail": "^8.1.5",
+    "@sentry/node": "^9.33.0",
+    "bull-board": "^1.7.2",
+    "bullmq": "^5.56.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.0",
+    "express": "^5.1.0",
+    "ioredis": "^5.6.1",
+    "joi": "^17.13.3",
+    "nodemailer": "^7.0.3",
+    "puppeteer": "^24.11.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.4",
+    "@types/nodemailer": "^6.4.17",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

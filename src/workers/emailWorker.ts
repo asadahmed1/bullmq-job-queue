@@ -24,7 +24,7 @@ import nodemailer from 'nodemailer';
  * @param {EmailWorkerConfig} [config] - Optional configuration
  * @returns {Worker} - The email worker
  */
-export function startEmailWorker2(config?: EmailWorkerConfig) {
+export function startEmailWorker(config?: EmailWorkerConfig) {
   const redisConnection = config?.redis
     ? new IORedis({
       host: config.redis.host,

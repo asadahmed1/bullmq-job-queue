@@ -6,5 +6,10 @@ export interface EmailWorkerConfig {
   mail: {
     apiKey: string;
     from: string;
+    auth?: {
+      user: string;
+      pass: string;
+    };
+
   };
 }

@@ -1,5 +1,4 @@
 import { Worker } from 'bullmq';
-import { connection } from '../config/redis';
 import sgMail from '@sendgrid/mail';
 import { logger } from '../utils/logger';
 import IORedis from 'ioredis';
@@ -10,6 +9,7 @@ export function startEmailWorker(config?: EmailWorkerConfig) {
     ? new IORedis({
       host: config.redis.host,
       port: config.redis.port,
+      maxRetriesPerRequest: null,
     })
     : undefined;
 
@@ -28,7 +28,7 @@ export function startEmailWorker(config?: EmailWorkerConfig) {
       const { to, subject, message } = job.data;
       await sgMail.send({
         to,
-        from: process.env.MAIL_FROM!,
+        from: mailFrom,
         subject,
         text: message,
       });

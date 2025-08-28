@@ -1,7 +1,23 @@
 import IORedis from 'ioredis';
-import dotenv from 'dotenv';
-dotenv.config();
+import type { RedisOptions } from 'ioredis';
 
-export const connection = new IORedis(process.env.REDIS_URL!, {
-  maxRetriesPerRequest: null,
-});
+export type RedisConfig = {
+  host: string;
+  port: number;
+  password?: string;
+};
+
+/**
+ * Create a Redis connection compatible with BullMQ.
+ * Includes required `maxRetriesPerRequest: null`.
+ */
+export function createRedisConnection(config: RedisConfig): IORedis {
+  const options: RedisOptions = {
+    host: config.host,
+    port: config.port,
+    password: config.password,
+    maxRetriesPerRequest: null, // ✅ Required for BullMQ
+  };
+
+  return new IORedis(options);
+}

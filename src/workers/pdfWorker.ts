@@ -1,10 +1,15 @@
 import { Worker } from 'bullmq';
 import { pdfQueue } from '../queues/queue';
-import { connection } from '../config/redis';
 import { logger } from '../utils/logger';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
+import { createRedisConnection } from '../config/redis';
+
+const connection = createRedisConnection({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: Number(process.env.REDIS_PORT) || 6379,
+});
 export function startPdfWorker() {
 const worker = new Worker(
   'pdfQueue',

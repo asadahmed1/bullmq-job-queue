@@ -1,6 +1,6 @@
 {
   "name": "@asadahmed/bullmq-job-queue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reusable BullMQ-based job queue microservice with support for email, PDF, and webhooks.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -35,6 +35,184 @@ Supports **Email**, **PDF generation**, and **Webhook jobs** with a built-in adm
 
 ---
 
+## 🛠️ Prerequisites
+
+- Node.js `v18+`  
+- Redis (local install or via Docker)  
+- Docker (optional but recommended)  
+- Gmail, Mailtrap, or any SMTP server (for email testing)  
+
+---
+
+## 📥 Installation
+
+```bash
+npm install @queuelabs/bullmq-utils
+```
+
+---
+
+## 🔧 Usage Examples
+
+### 📧 Email Worker with Gmail
+
+```javascript
+require("dotenv").config();
+
+const { startEmailWorker, createRedisConnection, emailQueue } = require("@queuelabs/bullmq-utils");
+
+const redis = createRedisConnection({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+});
+
+startEmailWorker({
+  redis,
+  mail: {
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS, // Gmail App Password
+    },
+  },
+});
+
+// Add a test job
+emailQueue.add(
+  "sendEmail",
+  {
+    to: "recipient@example.com",
+    subject: "BullMQ Gmail Test",
+    message: "This email was sent using Gmail + BullMQ Queue!",
+  },
+  {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5000 },
+  }
+);
+```
+
+**Environment Variables (.env):**
+```bash
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+EMAIL_USER=your@gmail.com
+EMAIL_PASS=your_gmail_app_password
+```
+
+### 📧 Email Worker with SendGrid
+
+```javascript
+require("dotenv").config();
+
+const { startEmailWorker, createRedisConnection, emailQueue } = require("@queuelabs/bullmq-utils");
+
+const redis = createRedisConnection({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+});
+
+startEmailWorker({
+  redis,
+  mail: {
+    apiKey: process.env.SENDGRID_API_KEY,
+    from: process.env.MAIL_FROM,
+  },
+});
+
+emailQueue.add(
+  "sendEmail",
+  {
+    to: "recipient@example.com",
+    subject: "BullMQ SendGrid Test",
+    message: "This email was sent using SendGrid + BullMQ Queue!",
+  },
+  {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5000 },
+  }
+);
+```
+
+**Environment Variables (.env):**
+```bash
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+SENDGRID_API_KEY=your_sendgrid_api_key
+MAIL_FROM=your_verified_sender@example.com
+```
+
+### 🌐 Webhook Worker
+
+```javascript
+require("dotenv").config();
+
+const { startWebhookWorker, createRedisConnection, webhookQueue } = require("@queuelabs/bullmq-utils");
+
+const redis = createRedisConnection({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+});
+
+// Start webhook worker
+startWebhookWorker({ redis });
+
+// Add a test webhook job
+webhookQueue.add(
+  "sendWebhook",
+  {
+    url: "https://webhook.site/your-test-id",
+    payload: { event: "order.created", orderId: 12345 },
+  },
+  {
+    attempts: 5,
+    backoff: { type: "exponential", delay: 3000 },
+  }
+);
+```
+
+**Environment Variables (.env):**
+```bash
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
+
+---
+
+## 🏗️ Development Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/queuelabs/bullmq-utils.git
+cd bullmq-utils
+npm install
+```
+
+### 2. Start Redis (Docker example)
+
+```bash
+docker run -d --name redis-server -p 6379:6379 redis
+```
+
+### 3. Run the Service
+
+```bash
+npx ts-node src/server.ts
+```
+
+### 4. Start Workers
+
+```bash
+npx ts-node src/workers/emailWorker.ts
+npx ts-node src/workers/pdfWorker.ts
+npx ts-node src/workers/webhookWorker.ts
+```
+
+---
+
 ## 📂 Project Structure
 
 ```bash
@@ -54,48 +232,14 @@ job-queue-service/
 
 ---
 
-## 🛠️ Prerequisites
-
-- Node.js `v18+`  
-- Redis (local install or via Docker)  
-- Docker (optional but recommended)  
-- Gmail, Mailtrap, or any SMTP server (for email testing)  
-
----
-
-## 📥 Installation & Setup
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/queuelabs/bullmq-utils.git
-cd bullmq-utils
-npm install
-```
-
-### 2. Start Redis (Docker example)
-```bash
-docker run -d --name redis-server -p 6379:6379 redis
-```
-
-### 3. Run the Service
-```bash
-npx ts-node src/server.ts
-```
-
-### 4. Start Workers
-```bash
-npx ts-node src/workers/emailWorker.ts
-npx ts-node src/workers/pdfWorker.ts
-npx ts-node src/workers/webhookWorker.ts
-```
-
----
-
-## 🔧 Usage Example
+## 🔄 REST API Usage
 
 ### Add an Email Job
+
 ```bash
-curl -X POST http://localhost:3000/api/email   -H "Content-Type: application/json"   -d '{
+curl -X POST http://localhost:3000/api/email \
+  -H "Content-Type: application/json" \
+  -d '{
     "to": "user@example.com",
     "subject": "Hello",
     "body": "Welcome to BullMQ Jobs 🚀"
@@ -103,8 +247,8 @@ curl -X POST http://localhost:3000/api/email   -H "Content-Type: application/jso
 ```
 
 ### Monitor Jobs
-Visit 👉 [http://localhost:3000/admin/queues](http://localhost:3000/admin/queues)  
-to see Bull Board in action.  
+
+Visit 👉 [http://localhost:3000/admin/queues](http://localhost:3000/admin/queues) to see Bull Board in action.  
 
 ---
 
@@ -120,4 +264,3 @@ to see Bull Board in action.
 ## 📜 License
 
 MIT © [Queuelabs](https://github.com/queuelabs)
----

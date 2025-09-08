@@ -1,26 +1,52 @@
-// utils/scheduler.ts
+// src/utils/scheduler.ts
 import { Queue } from "bullmq";
+import { emailQueue, pdfQueue, webhookQueue } from "../queues/queue";
 
 /**
- * Schedule a job to run at a specific time.
- *
- * @param queue - The BullMQ queue (emailQueue, webhookQueue, pdfQueue, etc.)
- * @param name - The job name (e.g. "sendEmail")
- * @param data - The job payload
- * @param executeAt - Date or ISO string for when to run
+ * Generic scheduler for any queue
  */
-export async function scheduleJob(
-  queue: Queue<any>,
+export async function scheduleJob<T>(
+  queue: Queue,
   name: string,
-  data: Record<string, any>,
-  executeAt: string | Date
+  data: T,
+  runAt: Date | string | number
 ) {
-  const date = executeAt instanceof Date ? executeAt : new Date(executeAt);
-  const delay = date.getTime() - Date.now();
+  const delay =
+    typeof runAt === "number"
+      ? runAt
+      : new Date(runAt).getTime() - Date.now();
 
-  if (delay <= 0) {
-    throw new Error("executeAt must be in the future");
+  if (delay < 0) {
+    throw new Error("Scheduled time must be in the future ⏰");
   }
 
   return queue.add(name, data, { delay });
+}
+
+/**
+ * Convenience wrappers for each queue
+ */
+export async function scheduleEmail(
+  to: string,
+  subject: string,
+  message: string,
+  runAt: Date | string | number
+) {
+  return scheduleJob(emailQueue, "sendEmail", { to, subject, message }, runAt);
+}
+
+export async function schedulePdf(
+  html: string,
+  outputPath: string,
+  runAt: Date | string | number
+) {
+  return scheduleJob(pdfQueue, "generatePdf", { html, outputPath }, runAt);
+}
+
+export async function scheduleWebhook(
+  url: string,
+  payload: any,
+  runAt: Date | string | number
+) {
+  return scheduleJob(webhookQueue, "sendWebhook", { url, payload }, runAt);
 }

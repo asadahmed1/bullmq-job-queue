@@ -20,6 +20,7 @@ Supports **Email**, **PDF generation**, and **Webhook jobs** with a built-in adm
 - ✅ Input validation with Joi  
 - ⚡ Redis-backed job queue (BullMQ)  
 - 🐳 Docker-ready for local or cloud deployment  
+- ⏰ **Now supports scheduled jobs (run later at a specific time)**  
 
 ---
 
@@ -93,6 +94,7 @@ emailQueue.add(
 ```
 
 **Environment Variables (.env):**
+
 ```bash
 REDIS_HOST=localhost
 REDIS_PORT=6379
@@ -136,6 +138,7 @@ emailQueue.add(
 ```
 
 **Environment Variables (.env):**
+
 ```bash
 REDIS_HOST=localhost
 REDIS_PORT=6379
@@ -174,9 +177,53 @@ webhookQueue.add(
 ```
 
 **Environment Variables (.env):**
+
 ```bash
 REDIS_HOST=localhost
 REDIS_PORT=6379
+```
+
+---
+
+## 📅 Scheduled Jobs (New)
+
+In addition to immediate jobs, you can now **schedule jobs to run later at a specific date/time**.
+
+### Scheduled Email
+
+```javascript
+const { scheduleEmail } = require("@queuelabs/bullmq-utils");
+
+await scheduleEmail(
+  "recipient@example.com",
+  "Scheduled Email",
+  "This email will be sent in the future ⏰",
+  "2025-09-09T18:30:00Z"
+);
+```
+
+### Scheduled Webhook
+
+```javascript
+const { scheduleWebhook } = require("@queuelabs/bullmq-utils");
+
+await scheduleWebhook(
+  "https://example.com/webhook",
+  { event: "order.shipped", orderId: 123 },
+  new Date(Date.now() + 60000) // 1 min later
+);
+```
+
+### Scheduled PDF
+
+```javascript
+const { schedulePdf } = require("@queuelabs/bullmq-utils");
+
+await schedulePdf(
+  "invoice-template",
+  { customer: "Alice", amount: 100 },
+  "2025-09-09T22:00:00Z"
+);
 ```
 
 ---
@@ -237,9 +284,7 @@ job-queue-service/
 ### Add an Email Job
 
 ```bash
-curl -X POST http://localhost:3000/api/email \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST http://localhost:3000/api/email   -H "Content-Type: application/json"   -d '{
     "to": "user@example.com",
     "subject": "Hello",
     "body": "Welcome to BullMQ Jobs 🚀"
@@ -258,6 +303,7 @@ Visit 👉 [http://localhost:3000/admin/queues](http://localhost:3000/admin/queu
 - ✅ Built-in workers for **Email, PDF, Webhooks**  
 - ✅ Plug & play with any Node.js service  
 - ✅ Scalable & production-ready (Redis + Docker)  
+- ✅ **New: Scheduled jobs supported out of the box**  
 
 ---
 

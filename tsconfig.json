@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
-    "module": "commonjs",
-    "outDir": "dist",
-    "declaration": true,
-    "declarationDir": "dist",
-    "esModuleInterop": true,
-    "strict": true,
-    "rootDir": "src",
-    "typeRoots": ["./src/types", "./node_modules/@types"]
+    "target": "ES2019",                   // compatible with Node LTS
+    "module": "commonjs",                 // keeps TS happy with CommonJS deps
+    "outDir": "dist",                     // compiled JS output
+    "declaration": true,                  // generate type definitions
+    "declarationDir": "dist/types",       // place d.ts files here
+    "esModuleInterop": true,              // allows default import from CommonJS
+    "strict": true,                        // strict TS checks
+    "rootDir": "src",                      // your source folder
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "moduleResolution": "node"
   },
   "include": ["src"]
 }

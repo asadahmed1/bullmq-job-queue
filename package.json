@@ -1,18 +1,19 @@
 {
   "name": "@queuelabs/bullmq-utils",
-  "version": "1.1.5",
+  "version": "1.2.1",
   "description": "Reusable BullMQ-based job queue microservice with support for email, PDF, and webhooks.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",         
+  "module": "dist/esm/index.js",       
+  "types": "dist/types/index.d.ts",    
   "files": ["dist"],
   "scripts": {
-    "build": "tsc",
-    "dev": "ts-node src/server.ts",
-    "start:email": "ts-node src/workers/emailWorker.ts",
-    "start:pdf": "ts-node src/workers/pdfWorker.ts",
-    "start:webhook": "ts-node src/workers/webhookWorker.ts",
-    "prepublishOnly": "npm run build"
-  },
+  "build": "tsup src/index.ts --dts --format cjs,esm --out-dir dist",
+  "dev": "ts-node src/server.ts",
+  "start:email": "ts-node src/workers/emailWorker.ts",
+  "start:pdf": "ts-node src/workers/pdfWorker.ts",
+  "start:webhook": "ts-node src/workers/webhookWorker.ts",
+  "prepublishOnly": "npm run build"
+},
   "repository": {
     "type": "git",
     "url": "https://github.com/asadahmed1/bullmq-job-queue.git"
@@ -21,28 +22,27 @@
   "author": "Asad Ahmed",
   "license": "MIT",
   "keywords": [
-  "bullmq",
-  "queue",
-  "redis",
-  "worker",
-  "jobs",
-  "job-queue",
-  "task-queue",
-  "scheduler",
-  "background-jobs",
-  "task-runner",
-  "notifications",
-  "automation",
-  "pdf",
-  "email",
-  "webhook",
-  "reporting",
-  "workflow",
-  "nodejs",
-  "backend",
-  "async"
-]
-,
+    "bullmq",
+    "queue",
+    "redis",
+    "worker",
+    "jobs",
+    "job-queue",
+    "task-queue",
+    "scheduler",
+    "background-jobs",
+    "task-runner",
+    "notifications",
+    "automation",
+    "pdf",
+    "email",
+    "webhook",
+    "reporting",
+    "workflow",
+    "nodejs",
+    "backend",
+    "async"
+  ],
   "dependencies": {
     "@bull-board/api": "^6.10.1",
     "@bull-board/express": "^6.10.1",
@@ -65,6 +65,13 @@
     "@types/node": "^24.0.4",
     "@types/nodemailer": "^6.4.17",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "tsup": "^6.7.0"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
+    }
   }
 }

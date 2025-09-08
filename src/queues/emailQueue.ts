@@ -1,9 +1,7 @@
 import { Queue } from 'bullmq';
 import { createRedisConnection } from '../config/redis';
 
-const connection = createRedisConnection({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: Number(process.env.REDIS_PORT) || 6379,
-});
+// Redis connection: explicit > env > default
+const connection = createRedisConnection();
 
-export const emailQueue = new Queue('emailQueue', { connection })
+export const emailQueue = new Queue('emailQueue', { connection });

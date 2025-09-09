@@ -2,14 +2,18 @@ import { Worker } from 'bullmq';
 import sgMail from '@sendgrid/mail';
 import { logger } from '../utils/logger';
 import nodemailer from 'nodemailer';
-import { createRedisConnection } from '../config/redis';
+import { createRedisConnection, RedisConfig } from '../config/redis';
 import type { EmailWorkerConfig } from '../types/config';
 
-export function startEmailWorker(config?: EmailWorkerConfig) {
+export function startEmailWorker(config?: EmailWorkerConfig, redisConfig?: RedisConfig) {
   // Redis connection: explicit > env > default
-  const connection = config?.redis
-    ? createRedisConnection(config.redis)
-    : createRedisConnection();
+  const connection = createRedisConnection(
+    redisConfig ?? {
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : undefined,
+      password: process.env.REDIS_PASS,
+    }
+  );
 
   // Check SendGrid credentials
   const sendgridApiKey = config?.mail?.apiKey || process.env.SENDGRID_API_KEY;

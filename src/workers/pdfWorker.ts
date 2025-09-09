@@ -3,10 +3,10 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 import { logger } from '../utils/logger';
-import { createRedisConnection } from '../config/redis';
+import { createRedisConnection, RedisConfig } from '../config/redis';
 
-export function startPdfWorker() {
-  const connection = createRedisConnection();
+export function startPdfWorker(redisConfig?: RedisConfig) {
+  const connection = createRedisConnection(redisConfig);
 
   const worker = new Worker(
     'pdfQueue',

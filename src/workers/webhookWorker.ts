@@ -2,9 +2,16 @@ import { Worker } from 'bullmq';
 import axios from 'axios';
 import { logger } from '../utils/logger';
 import { createRedisConnection } from '../config/redis';
+import type { RedisConfig } from '../types/config';
 
-export function startWebhookWorker() {
-  const connection = createRedisConnection();
+/**
+ * Starts the webhook worker.
+ * 
+ * @param redisConfig Optional. If provided, uses these Redis connection params.
+ *                    Otherwise, uses environment variables/defaults.
+ */
+export function startWebhookWorker(redisConfig?: RedisConfig) {
+  const connection = createRedisConnection(redisConfig);
 
   const worker = new Worker(
     'webhookQueue',

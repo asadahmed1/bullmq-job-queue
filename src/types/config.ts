@@ -1,8 +1,11 @@
+
+export interface RedisConfig {
+  host?: string;
+  port?: number;
+  password?: string;
+}
 export interface EmailWorkerConfig {
-  redis: {
-    host: string;
-    port: number;
-  };
+  redis: RedisConfig;
   mail: {
     apiKey: string;
     from: string;

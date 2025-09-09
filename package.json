@@ -2,22 +2,22 @@
   "name": "@queuelabs/bullmq-utils",
   "version": "1.2.6",
   "description": "Reusable BullMQ-based job queue microservice with support for email, PDF, and webhooks.",
-  "main": "dist/cjs/index.js",         
-  "module": "dist/esm/index.js",       
-  "types": "dist/types/index.d.ts",    
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-  "build": "tsup \"src/**/*.ts\" --dts --format cjs,esm --out-dir dist",
-  "dev": "ts-node src/server.ts",
-  "start:email": "ts-node src/workers/emailWorker.ts",
-  "start:pdf": "ts-node src/workers/pdfWorker.ts",
-  "start:webhook": "ts-node src/workers/webhookWorker.ts",
-  "prepublishOnly": "npm run build",
-  "play": "ts-node playground/index.ts",
-  "worker:email": "ts-node src/startWorkers.ts email",
-  "worker:pdf": "ts-node src/startWorkers.ts pdf",
-  "worker:webhook": "ts-node src/startWorkers.ts webhook"
-},
+    "build": "tsup \"src/**/*.ts\" --dts --format cjs,esm --out-dir dist",
+    "dev": "ts-node src/server.ts",
+    "start:email": "ts-node src/workers/emailWorker.ts",
+    "start:pdf": "ts-node src/workers/pdfWorker.ts",
+    "start:webhook": "ts-node src/workers/webhookWorker.ts",
+    "prepublishOnly": "npm run build",
+    "play": "ts-node playground/index.ts",
+    "worker:email": "ts-node src/startWorkers.ts email",
+    "worker:pdf": "ts-node src/startWorkers.ts pdf",
+    "worker:webhook": "ts-node src/startWorkers.ts webhook"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/asadahmed1/bullmq-job-queue.git"
@@ -74,8 +74,8 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/cjs/index.js",
-      "import": "./dist/esm/index.js"
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     }
   }
 }

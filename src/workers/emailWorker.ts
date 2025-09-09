@@ -5,10 +5,10 @@ import nodemailer from 'nodemailer';
 import { createRedisConnection, RedisConfig } from '../config/redis';
 import type { EmailWorkerConfig } from '../types/config';
 
-export function startEmailWorker(config?: EmailWorkerConfig, redisConfig?: RedisConfig) {
+export function startEmailWorker(config?: EmailWorkerConfig) {
   // Redis connection: explicit > env > default
   const connection = createRedisConnection(
-    redisConfig ?? {
+    config?.redis ? config.redis : {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : undefined,
       password: process.env.REDIS_PASS,

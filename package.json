@@ -1,6 +1,6 @@
 {
   "name": "@queuelabs/bullmq-utils",
-  "version": "1.2.5",
+  "version": "1.2.3",
   "description": "Reusable BullMQ-based job queue microservice with support for email, PDF, and webhooks.",
   "main": "dist/cjs/index.js",         
   "module": "dist/esm/index.js",       
@@ -12,7 +12,11 @@
   "start:email": "ts-node src/workers/emailWorker.ts",
   "start:pdf": "ts-node src/workers/pdfWorker.ts",
   "start:webhook": "ts-node src/workers/webhookWorker.ts",
-  "prepublishOnly": "npm run build"
+  "prepublishOnly": "npm run build",
+  "play": "ts-node playground/index.ts",
+  "worker:email": "ts-node src/startWorkers.ts email",
+  "worker:pdf": "ts-node src/startWorkers.ts pdf",
+  "worker:webhook": "ts-node src/startWorkers.ts webhook"
 },
   "repository": {
     "type": "git",

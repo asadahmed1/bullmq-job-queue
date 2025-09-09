@@ -6,7 +6,6 @@ const connection = createRedisConnection({
   port: Number(process.env.REDIS_PORT) || 6379,
   password: process.env.REDIS_PASS,
 });
-
 export const emailQueue = new Queue('emailQueue', { connection });
 export const pdfQueue = new Queue('pdfQueue', { connection });
 export const webhookQueue = new Queue('webhookQueue', { connection });

@@ -6,12 +6,17 @@ import type { RedisConfig } from '../types/config';
 
 /**
  * Starts the webhook worker.
- * 
+ *
  * @param redisConfig Optional. If provided, uses these Redis connection params.
  *                    Otherwise, uses environment variables/defaults.
  */
 export function startWebhookWorker(redisConfig?: RedisConfig) {
-  const connection = createRedisConnection(redisConfig);
+  console.log("Starting webhook worker...", redisConfig);
+  let connection
+  if (redisConfig) {
+    connection = createRedisConnection(redisConfig);
+  } else
+    connection = createRedisConnection();
 
   const worker = new Worker(
     'webhookQueue',
@@ -29,8 +34,12 @@ export function startWebhookWorker(redisConfig?: RedisConfig) {
     { connection }
   );
 
-  worker.on('completed', (job) => logger.info(`✅ Webhook Job ${job.id} completed`));
-  worker.on('failed', (job, err) => logger.error(`❌ Webhook Job ${job?.id} failed: ${err.message}`));
+  worker.on('completed', (job) =>
+    logger.info(`✅ Webhook Job ${job.id} completed`)
+  );
+  worker.on('failed', (job, err) =>
+    logger.error(`❌ Webhook Job ${job?.id} failed: ${err.message}`)
+  );
 
   return worker;
 }

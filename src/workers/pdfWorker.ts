@@ -6,7 +6,11 @@ import { logger } from '../utils/logger';
 import { createRedisConnection, RedisConfig } from '../config/redis';
 
 export function startPdfWorker(redisConfig?: RedisConfig) {
-  const connection = createRedisConnection(redisConfig);
+  let connection = createRedisConnection();
+
+  if (redisConfig) {
+    connection = createRedisConnection(redisConfig);
+  }
 
   const worker = new Worker(
     'pdfQueue',

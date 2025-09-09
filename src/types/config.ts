@@ -5,10 +5,11 @@ export interface RedisConfig {
   password?: string;
 }
 export interface EmailWorkerConfig {
-  redis: RedisConfig;
+  redis?: RedisConfig;
   mail: {
-    apiKey: string;
-    from: string;
+    apiKey?: string;
+    from?: string;
+    service?: string;
     auth?: {
       user: string;
       pass: string;

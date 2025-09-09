@@ -11,5 +11,5 @@
     "typeRoots": ["./src/types", "./node_modules/@types"],
     "moduleResolution": "node"
   },
-  "include": ["src"]
+  "include": ["src", "playgorund.ts"]
 }

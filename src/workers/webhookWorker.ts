@@ -11,7 +11,7 @@ import type { RedisConfig } from '../types/config';
  *                    Otherwise, uses environment variables/defaults.
  */
 export function startWebhookWorker(redisConfig?: RedisConfig) {
-  console.log("Starting webhook worker...", redisConfig);
+  console.log("Starting webhook worker...");
   let connection
   if (redisConfig) {
     connection = createRedisConnection(redisConfig);

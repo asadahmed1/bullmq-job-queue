@@ -1,6 +1,6 @@
 {
   "name": "@queuelabs/bullmq-utils",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Reusable BullMQ-based job queue microservice with support for email, PDF, and webhooks.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

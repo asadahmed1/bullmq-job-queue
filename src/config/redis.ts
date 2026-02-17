@@ -1,3 +1,4 @@
+import { logger } from "@sentry/node";
 import "dotenv/config";
 import IORedis from 'ioredis';
 import type { RedisOptions } from 'ioredis';
@@ -22,8 +23,8 @@ export function createRedisConnection(config: RedisConfig = {}): IORedis {
   };
   const redis = new IORedis(options);
 
-  redis.on('connect', () => console.log('✅ Redis connected!'));
-  redis.on('error', (err) => console.error('❌ Redis Error:', err));
+  redis.on('connect', () => logger.info('✅ Redis connected!'));
+  redis.on('error', (err) => logger.error('❌ Redis Error:', [err]));
 
   return redis;
 }

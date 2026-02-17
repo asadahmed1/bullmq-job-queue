@@ -4,13 +4,12 @@ import fs from 'fs';
 import path from 'path';
 import { logger } from '../utils/logger';
 import { createRedisConnection, RedisConfig } from '../config/redis';
+import { attachGracefulShutdown } from '../utils/gracefullShutdown';
+import { WorkerConfig } from '../types/config';
+import { getSharedRedis } from '../config/redisSingleton';
 
-export function startPdfWorker(redisConfig?: RedisConfig) {
-  let connection = createRedisConnection();
-
-  if (redisConfig) {
-    connection = createRedisConnection(redisConfig);
-  }
+export function startPdfWorker(config?: WorkerConfig) {
+  const connection = config?.redis ? createRedisConnection(config.redis) : getSharedRedis();
 
   const worker = new Worker(
     'pdfQueue',
@@ -37,11 +36,13 @@ export function startPdfWorker(redisConfig?: RedisConfig) {
         throw err;
       }
     },
-    { connection }
+    { connection,
+      concurrency: config?.concurrency ?? 1,
+      limiter: config?.limiter }
   );
 
   worker.on('completed', (job) => logger.info(`✅ PDF Job ${job.id} completed`));
   worker.on('failed', (job, err) => logger.error(`❌ PDF Job ${job?.id} failed: ${err.message}`));
-
+  attachGracefulShutdown(worker);
   return worker;
 }

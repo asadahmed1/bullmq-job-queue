@@ -1,12 +1,13 @@
 import { Queue } from 'bullmq';
 import { createRedisConnection, RedisConfig } from '../config/redis';
+import { getSharedRedis } from '../config/redisSingleton';
 
 /**
  * Factory for a BullMQ emailQueue with optional Redis config.
  * If config is omitted, uses environment variables or defaults.
  */
 export function getEmailQueue(config?: RedisConfig) {
-  const connection = createRedisConnection(config);
+  const connection = getSharedRedis();
   return new Queue('emailQueue', { connection });
 }
 

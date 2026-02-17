@@ -1,66 +1,51 @@
   BullMQ Job Queue Microservice
 
-🚀 BullMQ Job Queue Microservice for Node.js
-============================================
-
-### Background Jobs, Email Queues, Webhooks & Scheduled Tasks — Production Ready
+  BullMQ Job Queue Microservice
+================================
 
 ![npm version](https://img.shields.io/npm/v/@queuelabs/bullmq-utils) ![downloads](https://img.shields.io/npm/dw/@queuelabs/bullmq-utils) ![license](https://img.shields.io/npm/l/@queuelabs/bullmq-utils) ![node version](https://img.shields.io/node/v/@queuelabs/bullmq-utils)
 
-A production-ready **background job processing system for Node.js** built on BullMQ and Redis.
-
-Stop wiring queues, retries, scheduling logic, email workers, dashboards, and Docker every time. Install once and start processing jobs in minutes.
+Production-ready **background job processing system for Node.js** using BullMQ and Redis. Handles emails, PDFs, webhooks, scheduling, and monitoring out of the box.
 
 * * *
 
-✨ What This Solves
+ What This Solves
 ------------------
 
-*   Configure Redis connections
-*   Implement workers
-*   Handle retries & backoff
-*   Build scheduling logic
-*   Integrate email providers
-*   Add monitoring dashboard
-*   Dockerize everything
-
-This package gives you all of that out of the box.
-
-* * *
-
-🎯 Who Is This For?
--------------------
-
-*   SaaS platforms sending transactional emails
-*   E-commerce apps processing order webhooks
-*   Systems generating PDF invoices in background
-*   Teams that need Redis-based job queues fast
-*   Developers tired of setting up BullMQ boilerplate
+*   Configure Redis connections (shared or per-worker)
+*   Implement workers with concurrency and rate-limiter support
+*   Handle retries, backoff, and timeouts
+*   Schedule jobs for future execution
+*   Integrate multiple email providers (Gmail / SendGrid / SMTP)
+*   Monitor jobs with Bull Board
+*   Docker-ready deployment
 
 * * *
 
 ⚡ Features
 ----------
 
-*   📥 Add jobs via REST API
-*   📤 Email worker (SMTP / Gmail / SendGrid)
-*   📝 PDF worker for reports & invoices
-*   🌐 Webhook worker with retries
-*   ⏰ Scheduled jobs
-*   🖥 Admin dashboard via Bull Board
-*   ✅ Input validation
-*   ⚡ Redis-backed durability
-*   🐳 Docker-ready deployment
-*   🔁 Exponential retry & backoff support
+*    Add jobs via REST API
+*    Email worker (SMTP / Gmail / SendGrid)
+*    PDF worker for invoices & reports
+*    Webhook worker with retries and timeout
+*    Scheduled jobs
+*    Bull Board admin dashboard
+*    Input validation
+*    Redis-backed queues
+*    Exponential retry & backoff support
+*    Docker-ready deployment
+*    Graceful shutdown for workers
+*    Worker configuration: `concurrency`, `limiter`, `timeout`
 
 * * *
 
-🏗 Architecture Overview
-------------------------
+🏗 Architecture
+---------------
 
 Client → REST API → Queue → Redis → Worker → External Service
-                           ↓
-                    Bull Board Admin UI
+                                   ↓
+                            Bull Board Admin UI
 
 * * *
 
@@ -76,47 +61,35 @@ Client → REST API → Queue → Redis → Worker → External Service
 
 ### Create Redis Connection
 
-    
-    require("dotenv").config();
-    
-    const { createRedisConnection } = require("@queuelabs/bullmq-utils");
+    import "dotenv/config";
+    import { createRedisConnection } from "@queuelabs/bullmq-utils";
     
     const redis = createRedisConnection({
       host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT,
+      port: Number(process.env.REDIS_PORT),
     });
     
 
 * * *
 
-📧 Email Worker (Gmail Example)
--------------------------------
+### 📧 Email Worker Example (Gmail)
 
-    
-    const { startEmailWorker, emailQueue } = require("@queuelabs/bullmq-utils");
+    import { startEmailWorker, emailQueue } from "@queuelabs/bullmq-utils";
     
     startEmailWorker({
-      redis,
+      redis, // optional: defaults to shared Redis
       mail: {
         service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
       },
+      concurrency: 2, // optional, defaults to 1
+      limiter: { max: 10, duration: 1000 }, // optional rate limiter
     });
     
     emailQueue.add(
       "sendEmail",
-      {
-        to: "recipient@example.com",
-        subject: "Welcome 🚀",
-        message: "This email was sent using BullMQ background jobs!",
-      },
-      {
-        attempts: 3,
-        backoff: { type: "exponential", delay: 5000 },
-      }
+      { to: "recipient@example.com", subject: "Welcome 🚀", message: "Hello!" },
+      { attempts: 3, backoff: { type: "exponential", delay: 5000 } }
     );
     
 
@@ -131,43 +104,42 @@ Client → REST API → Queue → Redis → Worker → External Service
 
 * * *
 
-🌐 Webhook Worker
------------------
+### 🌐 Webhook Worker Example
 
+    import { startWebhookWorker, webhookQueue } from "@queuelabs/bullmq-utils";
     
-    const { startWebhookWorker, webhookQueue } = require("@queuelabs/bullmq-utils");
-    
-    startWebhookWorker({ redis });
+    startWebhookWorker({
+      redis,              // optional: defaults to shared Redis
+      concurrency: 5,     // optional
+      timeout: 10000,     // optional HTTP request timeout in ms
+    });
     
     webhookQueue.add(
       "sendWebhook",
-      {
-        url: "https://example.com/webhook",
-        payload: { event: "order.created", orderId: 12345 },
-      },
-      {
-        attempts: 5,
-        backoff: { type: "exponential", delay: 3000 },
-      }
+      { url: "https://example.com/webhook", payload: { event: "order.created" } },
+      { attempts: 5, backoff: { type: "exponential", delay: 3000 } }
     );
     
 
 * * *
 
-⏰ Scheduled Jobs
-----------------
+### ⏰ Scheduled Jobs
 
-### Scheduled Email
-
+    import { scheduleEmail, schedulePdf, scheduleWebhook } from "@queuelabs/bullmq-utils";
     
-    const { scheduleEmail } = require("@queuelabs/bullmq-utils");
-    
+    // Schedule email for future
     await scheduleEmail(
       "recipient@example.com",
       "Scheduled Email",
       "This will be sent later ⏰",
-      "2025-09-09T18:30:00Z"
+      new Date(Date.now() + 60000) // 1 minute later
     );
+    
+    // Schedule PDF generation
+    await schedulePdf("Invoice", "invoice.pdf", new Date(Date.now() + 60000));
+    
+    // Schedule webhook
+    await scheduleWebhook("https://example.com/webhook", { orderId: 123 }, new Date(Date.now() + 60000));
     
 
 * * *
@@ -187,32 +159,30 @@ Visit: **http://localhost:3000/admin/queues**
 🐳 Docker Deployment
 --------------------
 
-    
     docker run -d --name redis-server -p 6379:6379 redis
-    
 
 * * *
 
-⚙ Production-Ready Capabilities
--------------------------------
+⚙ Production Capabilities
+-------------------------
 
-*   Redis-based distributed processing
-*   Exponential backoff retries
-*   Scheduled job execution
-*   Horizontal scaling (multiple workers)
-*   Queue inspection dashboard
-*   Cloud-ready deployment
+*   Shared Redis connections for multiple queues
+*   Configurable concurrency & rate limiter per worker
+*   Job timeouts
+*   Graceful worker shutdown (SIGTERM / SIGINT)
+*   Horizontal scaling support
+*   Cloud-ready & containerized
 
 * * *
 
 💡 Example Use Cases
 --------------------
 
-*   Transactional email queue (SaaS onboarding)
-*   Background invoice generation
+*   Transactional emails (SaaS onboarding)
+*   Background PDF generation (invoices, reports)
 *   Reliable webhook delivery
 *   Notification scheduling
-*   External API retry handling
+*   External API retries
 
 * * *
 

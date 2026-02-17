@@ -3,17 +3,15 @@ import sgMail from '@sendgrid/mail';
 import { logger } from '../utils/logger';
 import nodemailer from 'nodemailer';
 import { createRedisConnection, RedisConfig } from '../config/redis';
-import type { EmailWorkerConfig } from '../types/config';
+import type { EmailWorkerConfig, WorkerConfig } from '../types/config';
+import { attachGracefulShutdown } from '../utils/gracefullShutdown';
+import { getSharedRedis } from '../config/redisSingleton';
 
-export function startEmailWorker(config?: EmailWorkerConfig) {
+export function startEmailWorker(
+  config?: WorkerConfig & EmailWorkerConfig
+) {
   // Redis connection: explicit > env > default
-  const connection = createRedisConnection(
-    config?.redis ? config.redis : {
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : undefined,
-      password: process.env.REDIS_PASS,
-    }
-  );
+  const connection = config?.redis ? createRedisConnection(config.redis) : getSharedRedis();
 
   // Check SendGrid credentials
   const sendgridApiKey = config?.mail?.apiKey || process.env.SENDGRID_API_KEY;
@@ -51,11 +49,13 @@ export function startEmailWorker(config?: EmailWorkerConfig) {
       await sendEmail({ to, subject, message });
       logger.info(`Email sent to ${to}`);
     },
-    { connection }
+    { connection,
+      concurrency: config?.concurrency ?? 1,
+      limiter: config?.limiter }
   );
 
   worker.on('completed', (job) => logger.info(`✅ Email job ${job.id} completed`));
   worker.on('failed', (job, err) => logger.error(`❌ Email job ${job?.id} failed: ${err.message}`));
-
+  attachGracefulShutdown(worker);
   return worker;
 }
